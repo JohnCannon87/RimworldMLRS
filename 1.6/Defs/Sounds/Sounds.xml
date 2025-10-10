@@ -1,0 +1,19 @@
+<Defs>
+
+    <SoundDef>
+        <defName>Missile_Launch</defName>
+        <context>MapOnly</context>
+        <maxSimultaneous>5</maxSimultaneous>
+        <subSounds>
+            <li>
+                <grains>
+                    <li Class="AudioGrain_Clip">
+                        <clipPath>MissLaunch</clipPath>
+                    </li>
+                </grains>
+                <volumeRange>30~30</volumeRange>
+            </li>
+        </subSounds>
+    </SoundDef>
+
+</Defs>

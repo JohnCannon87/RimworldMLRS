@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <ThingDef ParentName="BuildingBase">
+        <defName>BigBlastTurretGun</defName>
+        <label>MLRS Launcher</label>
+        <description>Long range multiple rocket launch system, designed for area denial and anti-air security, uses a long pivot join that allows the turret to be fitted above a rooftop.</description>
+        <uiIconPath>Buildings/MLRS_Turret_UI</uiIconPath>
+        <thingClass>Building_TurretGun</thingClass>
+        <drawerType>MapMeshAndRealTime</drawerType>
+        <drawHighlight>true</drawHighlight>
+        <drawHighlightOnlyForHostile>true</drawHighlightOnlyForHostile>
+        <graphicData>
+            <texPath>Buildings/Turret_Base/Turret_Base</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawSize>(3,3)</drawSize>
+            <damageData>
+                <rect>(0.38,0.2,0.56375,0.8)</rect>
+                <cornerTL>Damage/Corner</cornerTL>
+            </damageData>
+            <shadowData>
+              <volume>(1.5,0.35,1.4)</volume>
+              <offset>(0,0,-0.05)</offset>
+            </shadowData>
+        </graphicData>
+        <minifiedDef>MinifiedThing</minifiedDef>
+        <stealable>false</stealable>
+        <thingCategories>
+            <li>BuildingsSecurity</li>
+        </thingCategories>
+        <altitudeLayer>Building</altitudeLayer>
+        <stealable>false</stealable>
+        <rotatable>false</rotatable>
+        <statBases>
+            <MaxHitPoints>2000</MaxHitPoints>
+            <Flammability>0.7</Flammability>
+            <WorkToBuild>20000</WorkToBuild>
+            <Mass>180</Mass>
+            <Beauty>-10</Beauty>
+            <ShootingAccuracyTurret>1.00</ShootingAccuracyTurret>
+        </statBases>
+        <tickerType>Normal</tickerType>
+        <comps>
+            <li Class="CompProperties_Explosive">
+                <wickTicks>240</wickTicks>
+                <explosiveRadius>15.9</explosiveRadius>
+                <explosiveDamageType>Bomb</explosiveDamageType>
+            </li>
+            <li Class="CompProperties_Forbiddable"/>
+            <li Class="CompProperties_Power">
+                <compClass>CompPowerTrader</compClass>
+                <basePowerConsumption>1000</basePowerConsumption>
+            </li>
+            <li Class="CompProperties_Flickable"/>
+            <li Class="CompProperties_Breakdownable"/>
+            <li Class="CompProperties_Glower">
+                <glowRadius>10</glowRadius>
+                <glowColor>(217,217,180,0)</glowColor>
+            </li>
+            <li Class="CompProperties_Refuelable">
+              <fuelLabel>Shells remaining</fuelLabel>
+              <fuelGizmoLabel>Shells remaining</fuelGizmoLabel>
+              <outOfFuelMessage>Needs more shells</outOfFuelMessage>
+              <fuelFilter><thingDefs><li>Shell_HighExplosive</li></thingDefs></fuelFilter>
+              <fuelCapacity>100</fuelCapacity> 
+              <fuelMultiplier>1.0</fuelMultiplier>
+              <initialFuelPercent>1</initialFuelPercent>
+              <autoRefuelPercent>0.75</autoRefuelPercent>
+              <showFuelGizmo>true</showFuelGizmo>
+              <minimumFueledThreshold>1</minimumFueledThreshold>
+              <factorByDifficulty>false</factorByDifficulty>
+              <consumeFuelOnlyWhenUsed>true</consumeFuelOnlyWhenUsed>
+              <fuelIconPath>UI/Overlays/Barrel</fuelIconPath>
+            </li>
+            <li Class="CompProperties_Stunnable">
+              <affectedDamageDefs>
+                <li>Stun</li>
+                <li>EMP</li>
+              </affectedDamageDefs>
+            </li>
+            <li Class="RimworldMLRS.CompProperties_AdjustableMinRange">
+                <defaultMinRange>29.9</defaultMinRange>
+                <minLimit>5</minLimit>
+                <maxLimit>160</maxLimit>
+            </li>
+        </comps>
+        <size>(3,3)</size>
+        <passability>Impassable</passability>
+        <pathCost>50</pathCost>
+        <castEdgeShadows>true</castEdgeShadows>
+        <fillPercent>1.0</fillPercent>
+        <stuffCategories>
+            <li>Metallic</li>
+        </stuffCategories>
+        <costStuffCount>800</costStuffCount>
+        <costList>
+            <Steel>500</Steel>
+            <Plasteel>500</Plasteel>
+            <Shell_HighExplosive>100</Shell_HighExplosive>
+            <ComponentIndustrial>10</ComponentIndustrial>
+            <ComponentSpacer>5</ComponentSpacer>
+        </costList>
+        <inspectorTabs>
+          <li>ITab_Shells</li>
+        </inspectorTabs>
+        <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
+        <designationCategory>Security</designationCategory>
+        <constructionSkillPrerequisite>15</constructionSkillPrerequisite>
+        <building>
+            <turretBurstWarmupTime>4.0</turretBurstWarmupTime>
+            <turretBurstCooldownTime>28.0</turretBurstCooldownTime>
+            <buildingTags>
+              <li>Artillery</li>
+            </buildingTags>
+            <ai_combatDangerous>true</ai_combatDangerous>
+            <turretGunDef>MLRSLauncher</turretGunDef>
+            <turretTopDrawSize>2.0</turretTopDrawSize>
+            <turretTopOffset>(0, 0)</turretTopOffset>      
+            <canBuildNonEdificesUnder>false</canBuildNonEdificesUnder>
+            <supportsWallAttachments>true</supportsWallAttachments>
+            <isAirtight>true</isAirtight>
+        </building>
+        
+        <placeWorkers>
+          <li>PlaceWorker_TurretTop</li>
+          <li>PlaceWorker_ShowTurretRadius</li>
+        </placeWorkers>
+        <researchPrerequisites>
+            <li>Mortars</li>
+        </researchPrerequisites>   
+        <uiIconScale>0.95</uiIconScale>
+    </ThingDef>
+
+</Defs>
