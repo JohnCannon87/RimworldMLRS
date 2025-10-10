@@ -33,6 +33,10 @@ namespace RimworldMLRS
 
         public override void CompTick()
         {
+            if (!RimworldMLRSMod.settings.canInterceptSkyfallers)
+            {
+                return;
+            }
             base.CompTick();
 
             tickCounter++;

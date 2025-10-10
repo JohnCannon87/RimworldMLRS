@@ -21,6 +21,8 @@ namespace RimworldMLRS
 
         public bool enableDebugLogging = false;
 
+        public bool canInterceptSkyfallers = true;
+
         public override void ExposeData()
         {
             Scribe_Values.Look(ref useCustomParameters, "useCustomParameters", false);
@@ -34,6 +36,7 @@ namespace RimworldMLRS
             Scribe_Values.Look(ref maxIntercepts, "maxIntercepts", 5);
             Scribe_Values.Look(ref interceptCooldownTicks, "interceptCooldownTicks", 5);
             Scribe_Values.Look(ref enableDebugLogging, "enableDebugLogging", false);
+            Scribe_Values.Look(ref canInterceptSkyfallers, "canInterceptSkyfallers", true);
         }
     }
 }

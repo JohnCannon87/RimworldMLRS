@@ -49,6 +49,8 @@ namespace RimworldMLRS
                 DrawIntSetting(list, "Fuel Capacity", ref settings.fuelCapacity, 1, 200);
                 DrawFloatSetting(list, "Turret Burst Warmup Time", ref settings.turretBurstWarmupTime, 0f, 10f);
                 DrawFloatSetting(list, "Turret Burst Cooldown Time", ref settings.turretBurstCooldownTime, 0f, 30f);
+                list.GapLine();
+                list.CheckboxLabeled("Enable Droppod Interception", ref settings.canInterceptSkyfallers);
                 DrawIntSetting(list, "Max Aerial Targets Intercepted", ref settings.maxIntercepts, 0, 100);
                 DrawIntSetting(list, "Interceptor Cooldown (ticks)", ref settings.interceptCooldownTicks, 60, 1800);
             }
