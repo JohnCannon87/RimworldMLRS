@@ -82,6 +82,12 @@
                 <minLimit>5</minLimit>
                 <maxLimit>160</maxLimit>
             </li>
+            <li Class="RimworldMLRS.CompProperties_SkyfallerInterceptor">
+                <tickInterval>60</tickInterval>
+                <maxTargetsPerCycle>5</maxTargetsPerCycle>
+                <interceptRange>75</interceptRange>
+                <projectileDef>Bullet_MLRS_Rocket</projectileDef>
+            </li>
         </comps>
         <size>(3,3)</size>
         <passability>Impassable</passability>

@@ -1,18 +1,13 @@
 [h2]RimworldMLRS[/h2]
-This mod takes Gravships found in my other mod [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3576790938]Gravship Exporter[/url] and randomly adds POIs to the map where a crashing ship may be found.
-The gravship will be without GravEngine (why do you think it crashed !) and may be significantly damaged, or hardly damaged at all, there may also be survivors, who wont take kindly to you coming to strip their ship for parts, or them for kidneys...
-
-For this mod I need some feedback in the comments please :)  I'm not sure if it's balanced perfectly (or even at all) for the random loot or defenders etc. so any feedback on that kind of thing very much appreciated :D
+This mod adds a long range turret to the game.
 
 [h3]Features[/h3]
 [list]
-[*]Grav Engine replaced with a Broken Grav Engine that you can dismantle for spare parts (multiple Grav Engines on the same map annoys base Rimworld)
-[*]POIs generated randomly containing a crashed Gravship for you to plunder/loot
-[*]Items, structures and Pawns on the ship will be randomly damaged to simulate a crash
-[*]Random loot spawned to reward you for attacking
-[*]Defenders spawned (Rules for this, 1 Defending Pawn per Bed, if no Beds then per seat, if no seats then per 20 cells of ship)
-[*]Turrets powered and fuel required buildings partially fueled
-[*]Damage levels can be tuned in the mod settings as can the chances for the event to spawn
+[*]Turret fires 5 projectiles, each roughly equivilent to a High Explosive Mortar Shell from the base game
+[*]Requires fueling with High Explosive Mortar shells (Capacity 100)
+[*]Real smoke trails from the turret when it fires !
+[*]Lots of values for the turret configurable in settings to tune to how balanced you want it to be
+[*]Can also be set to intercept aerial attackers in the settings (Enemy Drop Pods etc.)
 [/list]
 
 
@@ -26,13 +21,13 @@ In theory it should be compatible with everything, if you're using an exported m
 
 
 [h2]The Point Of This Mod[/h2]
-You can blame [url=https://www.reddit.com/r/RimWorld/comments/1nt3cdt/comment/ngt5oom/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button]Happy_Little_Fish for this comment on Reddit[/url] and my desire to force X-Com into any and all conversations
+Part of a series of mods I've had for myself for a while that have either terrible graphics (that's not going to be fixed, unless someone gives me some better art to put in) or were atrociously balanced (So I've added the settings page)
 
 [h2]Future Plans[/h2]
 [list]
-[*]Landed ships with fully alive crew to fight back for a greater challenge
+[*]None, this is complete for me so probably won't be adding anything unless someone gives me a really good idea.
 [/list]
 
 [h2]Source Code[/h2]
 As always all my source code available for anyone else to use, copy, learn from, whatever
-https://github.com/JohnCannon87/RimworldRimworldMLRS
+https://github.com/JohnCannon87/RimworldMLRS

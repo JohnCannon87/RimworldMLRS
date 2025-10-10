@@ -11,11 +11,15 @@ namespace RimworldMLRS
         public float warmupTime = 0.66f;
         public int ticksBetweenBurstShots = 30;
         public int burstShotCount = 5;
+        public int maxIntercepts = 5;
+        public int interceptCooldownTicks = 600;
 
         // Building tunables
         public int fuelCapacity = 100;
         public float turretBurstWarmupTime = 4.0f;
         public float turretBurstCooldownTime = 25f;
+
+        public bool enableDebugLogging = false;
 
         public override void ExposeData()
         {
@@ -27,6 +31,9 @@ namespace RimworldMLRS
             Scribe_Values.Look(ref fuelCapacity, "fuelCapacity", 100);
             Scribe_Values.Look(ref turretBurstWarmupTime, "turretBurstWarmupTime", 4.0f);
             Scribe_Values.Look(ref turretBurstCooldownTime, "turretBurstCooldownTime", 25f);
+            Scribe_Values.Look(ref maxIntercepts, "maxIntercepts", 5);
+            Scribe_Values.Look(ref interceptCooldownTicks, "interceptCooldownTicks", 5);
+            Scribe_Values.Look(ref enableDebugLogging, "enableDebugLogging", false);
         }
     }
 }

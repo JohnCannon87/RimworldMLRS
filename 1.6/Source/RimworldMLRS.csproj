@@ -81,6 +81,9 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="RimworldMLRS\CompAdjustableMinRange.cs" />
+    <Compile Include="RimworldMLRS\CompProperties_SkyfallerInterceptor.cs" />
+    <Compile Include="RimworldMLRS\CompSkyfallerInterceptor.cs" />
+    <Compile Include="RimworldMLRS\Logger.cs" />
     <Compile Include="RimworldMLRS\Projectile_MLRSRocketTrail.cs" />
     <Compile Include="RimworldMLRS\RimworldMLRSMod.cs" />
     <Compile Include="RimworldMLRS\RimworldMLRSSettings.cs" />
@@ -88,11 +91,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
-    <Folder Include="RimworldMLRS\Debug\" />
-    <Folder Include="RimworldMLRS\Incident\" />
-    <Folder Include="RimworldMLRS\Settings\" />
-    <Folder Include="RimworldMLRS\Sites\" />
-    <Folder Include="RimworldMLRS\Util\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
