@@ -7,7 +7,7 @@ This mod adds a long range turret to the game.
 [*]Requires fueling with High Explosive Mortar shells (Capacity 100)
 [*]Real smoke trails from the turret when it fires !
 [*]Lots of values for the turret configurable in settings to tune to how balanced you want it to be
-[*]Can also be set to intercept aerial attackers in the settings (Enemy Drop Pods etc.)
+[*]Intercept aerial attackers ! (Enemy Drop Pods etc.) (Can be disabled in the mod settings)
 [/list]
 
 
