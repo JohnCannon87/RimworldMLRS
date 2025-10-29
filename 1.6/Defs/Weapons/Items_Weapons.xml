@@ -17,7 +17,7 @@
         </statBases>
         <verbs>
             <li>
-                <verbClass>Verb_Shoot</verbClass>
+                <verbClass>RimworldMLRS.Verb_ShootMLRS</verbClass>
                 <forceNormalTimeSpeed>false</forceNormalTimeSpeed>
                 <hasStandardCommand>true</hasStandardCommand>
                 <defaultProjectile>Bullet_MLRS_Rocket</defaultProjectile>

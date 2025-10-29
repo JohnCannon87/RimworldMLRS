@@ -50,12 +50,13 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>D:\Games\Steam\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
+    <None Include="packages.config" />
+    <Reference Include="0Harmony, Version=2.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lib.Harmony.2.4.1\lib\net472\0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="GravshipExport">
-      <HintPath>..\..\..\RimworldGravshipExport\1.6\Assemblies\GravshipExport.dll</HintPath>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>D:\Games\Steam\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -80,14 +81,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="RimworldMLRS\Building_TurretGunMLRS.cs" />
     <Compile Include="RimworldMLRS\CompAdjustableMinRange.cs" />
     <Compile Include="RimworldMLRS\CompProperties_SkyfallerInterceptor.cs" />
     <Compile Include="RimworldMLRS\CompSkyfallerInterceptor.cs" />
+    <Compile Include="RimworldMLRS\Harmony\RimworldMLRSHarmonyInit.cs" />
     <Compile Include="RimworldMLRS\Logger.cs" />
+    <Compile Include="RimworldMLRS\Harmony\Patch_AllowFiringWithinWalls.cs" />
+    <Compile Include="RimworldMLRS\PlaceWorker_ShowMLRSTurretRadius.cs" />
     <Compile Include="RimworldMLRS\Projectile_MLRSRocketTrail.cs" />
     <Compile Include="RimworldMLRS\RimworldMLRSMod.cs" />
     <Compile Include="RimworldMLRS\RimworldMLRSSettings.cs" />
     <Compile Include="RimworldMLRS\RimworldMLRS_Initializer.cs" />
+    <Compile Include="RimworldMLRS\Verb_ShootMLRS.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
@@ -107,7 +113,7 @@
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_StartDate="2000/1/1" BuildVersion_BuildVersioningStyle="None.None.Increment.TimeStamp" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" />
+      <UserProperties BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.TimeStamp" BuildVersion_StartDate="2000/1/1" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
