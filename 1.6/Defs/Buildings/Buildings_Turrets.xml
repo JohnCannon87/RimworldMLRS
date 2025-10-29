@@ -5,7 +5,7 @@
         <label>MLRS Launcher</label>
         <description>Long range multiple rocket launch system, designed for area denial and anti-air security, uses a long pivot join that allows the turret to be fitted above a rooftop.</description>
         <uiIconPath>Buildings/MLRS_Turret_UI</uiIconPath>
-        <thingClass>RimworldMLRS.Building_TurretGunMLRS</thingClass>
+        <thingClass>RimworldMLRS.Building_TurretGunMLRS</thingClass>        
         <drawerType>MapMeshAndRealTime</drawerType>
         <drawHighlight>true</drawHighlight>
         <drawHighlightOnlyForHostile>true</drawHighlightOnlyForHostile>
@@ -128,7 +128,7 @@
         
         <placeWorkers>
           <li>PlaceWorker_TurretTop</li>
-          <li>PlaceWorker_ShowTurretRadius</li>
+          <li>RimworldMLRS.PlaceWorker_ShowMLRSTurretRadius</li>
         </placeWorkers>
         <researchPrerequisites>
             <li>Mortars</li>

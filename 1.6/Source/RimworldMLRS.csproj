@@ -88,6 +88,7 @@
     <Compile Include="RimworldMLRS\Harmony\RimworldMLRSHarmonyInit.cs" />
     <Compile Include="RimworldMLRS\Logger.cs" />
     <Compile Include="RimworldMLRS\Harmony\Patch_AllowFiringWithinWalls.cs" />
+    <Compile Include="RimworldMLRS\PlaceWorker_ShowMLRSTurretRadius.cs" />
     <Compile Include="RimworldMLRS\Projectile_MLRSRocketTrail.cs" />
     <Compile Include="RimworldMLRS\RimworldMLRSMod.cs" />
     <Compile Include="RimworldMLRS\RimworldMLRSSettings.cs" />
@@ -112,7 +113,7 @@
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_StartDate="2000/1/1" BuildVersion_BuildVersioningStyle="None.None.Increment.TimeStamp" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" />
+      <UserProperties BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.TimeStamp" BuildVersion_StartDate="2000/1/1" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

@@ -1,169 +1,270 @@
-﻿// RimworldMLRS.Verb_ShootMLRS.cs
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using RimWorld;
 using Verse;
 using UnityEngine;
+using System;
 
 namespace RimworldMLRS
 {
-    public class Verb_ShootMLRS : Verb
-    {
-        private readonly List<IntVec3> evenDispersal = new List<IntVec3>();
+	public class Verb_ShootMLRS : Verb
+	{
+		private List<IntVec3> forcedMissTargetEvenDispersalCache = new List<IntVec3>();
 
-        public virtual ThingDef Projectile =>
-            EquipmentSource?.GetComp<CompChangeableProjectile>()?.Loaded == true
-                ? EquipmentSource.GetComp<CompChangeableProjectile>().Projectile
-                : verbProps.defaultProjectile;
+		protected override int ShotsPerBurst => base.BurstShotCount;
 
-        public override void WarmupComplete()
-        {
-            base.WarmupComplete();
-            Logger.Message($"[MLRS] WarmupComplete: verb={GetType().Name}, proj={Projectile?.defName ?? "null"}");
-            Find.BattleLog.Add(new BattleLogEntry_RangedFire(caster, currentTarget.HasThing ? currentTarget.Thing : null, EquipmentSource?.def, Projectile, ShotsPerBurst > 1));
-        }
+		public override void WarmupComplete()
+		{
+			base.WarmupComplete();
+			Find.BattleLog.Add(new BattleLogEntry_RangedFire(caster, currentTarget.HasThing ? currentTarget.Thing : null, base.EquipmentSource?.def, Projectile, ShotsPerBurst > 1));
+			Pawn pawn = currentTarget.Thing as Pawn;
+			if (pawn != null && !pawn.Downed && !pawn.IsColonyMech && CasterIsPawn && CasterPawn.skills != null)
+			{
+				float num = (pawn.HostileTo(caster) ? 170f : 20f);
+				float num2 = verbProps.AdjustedFullCycleTime(this, CasterPawn);
+				CasterPawn.skills.Learn(SkillDefOf.Shooting, num * num2);
+			}
+		}
 
-        protected override bool TryCastShot()
-        {
-            Logger.Message($"[MLRS] TryCastShot START. target={currentTarget.Cell}, casterPos={caster.Position}");
+		public override float EffectiveRange => base.EffectiveRange * (base.EquipmentSource?.GetStatValue(StatDefOf.RangedWeapon_RangeMultiplier) ?? 1f);
 
-            if (currentTarget.HasThing && currentTarget.Thing.Map != caster.Map)
-            {
-                Logger.Message("[MLRS] Abort: target on different map.");
-                return false;
-            }
+		public override float WarmupTime => base.WarmupTime * (base.EquipmentSource?.GetStatValue(StatDefOf.RangedWeapon_WarmupMultiplier) ?? 1f);
 
-            var projDef = Projectile;
-            if (projDef == null)
-            {
-                Logger.Message("[MLRS] Abort: Projectile is null (check verbProps.defaultProjectile or CompChangeableProjectile).");
-                return false;
-            }
+		public virtual ThingDef Projectile
+		{
+			get
+			{
+				CompChangeableProjectile compChangeableProjectile = base.EquipmentSource?.GetComp<CompChangeableProjectile>();
+				if (compChangeableProjectile != null && compChangeableProjectile.Loaded)
+				{
+					return compChangeableProjectile.Projectile;
+				}
+				return verbProps.defaultProjectile;
+			}
+		}
 
-            if (!TryFindShootLineFromTo(caster.Position, currentTarget, out ShootLine line))
-            {
-                Logger.Message($"[MLRS] No shoot line. stopBurstWithoutLos={verbProps.stopBurstWithoutLos}");
-                if (verbProps.stopBurstWithoutLos) return false;
-            }
-            else
-            {
-                Logger.Message($"[MLRS] Shoot line: src={line.Source}, dest={line.Dest}");
-            }
+		protected IntVec3 GetForcedMissTarget(float forcedMissRadius)
+		{
+			if (verbProps.forcedMissEvenDispersal)
+			{
+				if (forcedMissTargetEvenDispersalCache.Count <= 0)
+				{
+					forcedMissTargetEvenDispersalCache.AddRange(GenerateEvenDispersalForcedMissTargets(currentTarget.Cell, forcedMissRadius, burstShotsLeft));
+					forcedMissTargetEvenDispersalCache.SortByDescending((IntVec3 p) => p.DistanceToSquared(Caster.Position));
+				}
+				if (forcedMissTargetEvenDispersalCache.Count > 0)
+				{
+					return forcedMissTargetEvenDispersalCache.Pop();
+				}
+			}
+			int maxExclusive = GenRadial.NumCellsInRadius(forcedMissRadius);
+			int num = Rand.Range(0, maxExclusive);
+			return currentTarget.Cell + GenRadial.RadialPattern[num];
+		}
 
-            EquipmentSource?.GetComp<CompChangeableProjectile>()?.Notify_ProjectileLaunched();
-            EquipmentSource?.GetComp<CompApparelVerbOwner_Charged>()?.UsedOnce();
-            lastShotTick = Find.TickManager.TicksGame;
+		private static IEnumerable<IntVec3> GenerateEvenDispersalForcedMissTargets(IntVec3 root, float radius, int count)
+		{
+			float randomRotationOffset = Rand.Range(0f, 360f);
+			float goldenRatio = (1f + Mathf.Pow(5f, 0.5f)) / 2f;
+			for (int i = 0; i < count; i++)
+			{
+				float f = (float)Math.PI * 2f * (float)i / goldenRatio;
+				float f2 = Mathf.Acos(1f - 2f * ((float)i + 0.5f) / (float)count);
+				int num = (int)(Mathf.Cos(f) * Mathf.Sin(f2) * radius);
+				int num2 = (int)(Mathf.Cos(f2) * radius);
+				Vector3 vect = new Vector3(num, 0f, num2).RotatedBy(randomRotationOffset);
+				yield return root + vect.ToIntVec3();
+			}
+		}
 
-            Thing shooter = caster;
-            Thing equip = EquipmentSource;
-            var mannable = caster.TryGetComp<CompMannable>();
-            if (mannable?.ManningPawn != null) { shooter = mannable.ManningPawn; equip = caster; }
+		protected override bool TryCastShot()
+		{
+			if (currentTarget.HasThing && currentTarget.Thing.Map != caster.Map)
+			{
+				return false;
+			}
+			ThingDef projectile = Projectile;
+			if (projectile == null)
+			{
+				return false;
+			}
+			ShootLine resultingLine;
+			bool flag = TryFindShootLineFromTo(caster.Position, currentTarget, out resultingLine);
+			if (verbProps.stopBurstWithoutLos && !flag)
+			{
+				return false;
+			}
+			if (base.EquipmentSource != null)
+			{
+				base.EquipmentSource.GetComp<CompChangeableProjectile>()?.Notify_ProjectileLaunched();
+				base.EquipmentSource.GetComp<CompApparelVerbOwner_Charged>()?.UsedOnce();
+			}
+			lastShotTick = Find.TickManager.TicksGame;
+			Thing manningPawn = caster;
+			Thing equipmentSource = base.EquipmentSource;
+			CompMannable compMannable = caster.TryGetComp<CompMannable>();
+			if (compMannable?.ManningPawn != null)
+			{
+				manningPawn = compMannable.ManningPawn;
+				equipmentSource = caster;
+			}
+			Vector3 drawPos = caster.DrawPos;
+			Projectile projectile2 = (Projectile)GenSpawn.Spawn(projectile, resultingLine.Source, caster.Map);
+			if (equipmentSource.TryGetComp(out CompUniqueWeapon comp))
+			{
+				foreach (WeaponTraitDef item in comp.TraitsListForReading)
+				{
+					if (item.damageDefOverride != null)
+					{
+						projectile2.damageDefOverride = item.damageDefOverride;
+					}
+					if (!item.extraDamages.NullOrEmpty())
+					{
+						Projectile projectile3 = projectile2;
+						if (projectile3.extraDamages == null)
+						{
+							projectile3.extraDamages = new List<ExtraDamage>();
+						}
+						projectile2.extraDamages.AddRange(item.extraDamages);
+					}
+				}
+			}
+			if (verbProps.ForcedMissRadius > 0.5f)
+			{
+				float num = verbProps.ForcedMissRadius;
+				Pawn pawn = manningPawn as Pawn;
+				if (pawn != null)
+				{
+					num *= verbProps.GetForceMissFactorFor(equipmentSource, pawn);
+				}
+				float num2 = VerbUtility.CalculateAdjustedForcedMiss(num, currentTarget.Cell - caster.Position);
+				if (num2 > 0.5f)
+				{
+					IntVec3 forcedMissTarget = GetForcedMissTarget(num2);
+					if (forcedMissTarget != currentTarget.Cell)
+					{
+						ThrowDebugText("ToRadius");
+						ThrowDebugText("Rad\nDest", forcedMissTarget);
+						ProjectileHitFlags projectileHitFlags = ProjectileHitFlags.NonTargetWorld;
+						if (Rand.Chance(0.5f))
+						{
+							projectileHitFlags = ProjectileHitFlags.All;
+						}
+						if (!canHitNonTargetPawnsNow)
+						{
+							projectileHitFlags &= ~ProjectileHitFlags.NonTargetPawns;
+						}
+						projectile2.Launch(manningPawn, drawPos, forcedMissTarget, currentTarget, projectileHitFlags, preventFriendlyFire, equipmentSource);
+						return true;
+					}
+				}
+			}
+			ShotReport shotReport = ShotReport.HitReportFor(caster, this, currentTarget);
+			Thing randomCoverToMissInto = shotReport.GetRandomCoverToMissInto();
+			ThingDef targetCoverDef = randomCoverToMissInto?.def;
+			if (verbProps.canGoWild && !Rand.Chance(shotReport.AimOnTargetChance_IgnoringPosture))
+			{
+				bool flyOverhead = projectile2?.def?.projectile != null && projectile2.def.projectile.flyOverhead;
+				resultingLine.ChangeDestToMissWild(shotReport.AimOnTargetChance_StandardTarget, flyOverhead, caster.Map);
+				ThrowDebugText("ToWild" + (canHitNonTargetPawnsNow ? "\nchntp" : ""));
+				ThrowDebugText("Wild\nDest", resultingLine.Dest);
+				ProjectileHitFlags projectileHitFlags2 = ProjectileHitFlags.NonTargetWorld;
+				if (Rand.Chance(0.5f) && canHitNonTargetPawnsNow)
+				{
+					projectileHitFlags2 |= ProjectileHitFlags.NonTargetPawns;
+				}
+				projectile2.Launch(manningPawn, drawPos, resultingLine.Dest, currentTarget, projectileHitFlags2, preventFriendlyFire, equipmentSource, targetCoverDef);
+				return true;
+			}
+			if (currentTarget.Thing != null && currentTarget.Thing.def.CanBenefitFromCover && !Rand.Chance(shotReport.PassCoverChance))
+			{
+				ThrowDebugText("ToCover" + (canHitNonTargetPawnsNow ? "\nchntp" : ""));
+				ThrowDebugText("Cover\nDest", randomCoverToMissInto.Position);
+				ProjectileHitFlags projectileHitFlags3 = ProjectileHitFlags.NonTargetWorld;
+				if (canHitNonTargetPawnsNow)
+				{
+					projectileHitFlags3 |= ProjectileHitFlags.NonTargetPawns;
+				}
+				projectile2.Launch(manningPawn, drawPos, randomCoverToMissInto, currentTarget, projectileHitFlags3, preventFriendlyFire, equipmentSource, targetCoverDef);
+				return true;
+			}
+			ProjectileHitFlags projectileHitFlags4 = ProjectileHitFlags.IntendedTarget;
+			if (canHitNonTargetPawnsNow)
+			{
+				projectileHitFlags4 |= ProjectileHitFlags.NonTargetPawns;
+			}
+			if (!currentTarget.HasThing || currentTarget.Thing.def.Fillage == FillCategory.Full)
+			{
+				projectileHitFlags4 |= ProjectileHitFlags.NonTargetWorld;
+			}
+			ThrowDebugText("ToHit" + (canHitNonTargetPawnsNow ? "\nchntp" : ""));
+			if (currentTarget.Thing != null)
+			{
+				projectile2.Launch(manningPawn, drawPos, currentTarget, currentTarget, projectileHitFlags4, preventFriendlyFire, equipmentSource, targetCoverDef);
+				ThrowDebugText("Hit\nDest", currentTarget.Cell);
+			}
+			else
+			{
+				projectile2.Launch(manningPawn, drawPos, resultingLine.Dest, currentTarget, projectileHitFlags4, preventFriendlyFire, equipmentSource, targetCoverDef);
+				ThrowDebugText("Hit\nDest", resultingLine.Dest);
+			}
+			return true;
+		}
 
-            Vector3 drawPos = caster.DrawPos;
-            var proj = (Projectile)GenSpawn.Spawn(projDef, line.Source, caster.Map);
-            Logger.Message($"[MLRS] Spawned projectile {projDef.defName} at {line.Source}");
+		private void ThrowDebugText(string text)
+		{
+			if (DebugViewSettings.drawShooting)
+			{
+				MoteMaker.ThrowText(caster.DrawPos, caster.Map, text);
+			}
+		}
 
-            // Forced miss path
-            if (verbProps.ForcedMissRadius > 0.5f)
-            {
-                float miss = verbProps.ForcedMissRadius;
-                if (shooter is Pawn p) miss *= verbProps.GetForceMissFactorFor(equip, p);
-                float adj = VerbUtility.CalculateAdjustedForcedMiss(miss, currentTarget.Cell - caster.Position);
-                Logger.Message($"[MLRS] ForcedMiss check: base={verbProps.ForcedMissRadius}, adj={adj}");
-                if (adj > 0.5f)
-                {
-                    var missCell = GetForcedMissTarget(adj);
-                    if (missCell != currentTarget.Cell)
-                    {
-                        var flags = ProjectileHitFlags.NonTargetWorld;
-                        if (Rand.Chance(0.5f)) flags = ProjectileHitFlags.All;
-                        if (!canHitNonTargetPawnsNow) flags &= ~ProjectileHitFlags.NonTargetPawns;
-                        Logger.Message($"[MLRS] FORCED MISS → {missCell} flags={flags}");
-                        proj.Launch(shooter, drawPos, missCell, currentTarget, flags, preventFriendlyFire, equip);
-                        return true;
-                    }
-                }
-            }
+		private void ThrowDebugText(string text, IntVec3 c)
+		{
+			if (DebugViewSettings.drawShooting)
+			{
+				MoteMaker.ThrowText(c.ToVector3Shifted(), caster.Map, text);
+			}
+		}
 
-            // Wild shot path
-            ShotReport report = ShotReport.HitReportFor(caster, this, currentTarget);
-            Thing cover = report.GetRandomCoverToMissInto();
-            ThingDef coverDef = cover?.def;
+		public override float HighlightFieldRadiusAroundTarget(out bool needLOSToCenter)
+		{
+			needLOSToCenter = true;
+			ThingDef projectile = Projectile;
+			if (projectile == null)
+			{
+				return 0f;
+			}
+			float num = projectile.projectile.explosionRadius + projectile.projectile.explosionRadiusDisplayPadding;
+			float forcedMissRadius = verbProps.ForcedMissRadius;
+			if (forcedMissRadius > 0f && base.BurstShotCount > 1)
+			{
+				num += forcedMissRadius;
+			}
+			return num;
+		}
 
-            if (verbProps.canGoWild && !Rand.Chance(report.AimOnTargetChance_IgnoringPosture))
-            {
-                bool fly = proj?.def?.projectile != null && proj.def.projectile.flyOverhead;
-                line.ChangeDestToMissWild(report.AimOnTargetChance_StandardTarget, fly, caster.Map);
-                var flags = ProjectileHitFlags.NonTargetWorld;
-                if (Rand.Chance(0.5f) && canHitNonTargetPawnsNow) flags |= ProjectileHitFlags.NonTargetPawns;
-                Logger.Message($"[MLRS] WILD → {line.Dest} flags={flags}");
-                proj.Launch(shooter, drawPos, line.Dest, currentTarget, flags, preventFriendlyFire, equip, coverDef);
-                return true;
-            }
+		public override bool Available()
+		{
+			if (!base.Available())
+			{
+				return false;
+			}
+			if (CasterIsPawn)
+			{
+				Pawn casterPawn = CasterPawn;
+				if (casterPawn.Faction != Faction.OfPlayer && !verbProps.ai_ProjectileLaunchingIgnoresMeleeThreats && casterPawn.mindState.MeleeThreatStillThreat && casterPawn.mindState.meleeThreat.Position.AdjacentTo8WayOrInside(casterPawn.Position))
+				{
+					return false;
+				}
+			}
+			return Projectile != null;
+		}
 
-            // Cover path
-            if (currentTarget.Thing != null && currentTarget.Thing.def.CanBenefitFromCover && !Rand.Chance(report.PassCoverChance))
-            {
-                var flags = ProjectileHitFlags.NonTargetWorld;
-                if (canHitNonTargetPawnsNow) flags |= ProjectileHitFlags.NonTargetPawns;
-                Logger.Message($"[MLRS] COVER → {cover?.Position} flags={flags}");
-                proj.Launch(shooter, drawPos, cover, currentTarget, flags, preventFriendlyFire, equip, coverDef);
-                return true;
-            }
-
-            // Direct hit path
-            var hitFlags = ProjectileHitFlags.IntendedTarget;
-            if (canHitNonTargetPawnsNow) hitFlags |= ProjectileHitFlags.NonTargetPawns;
-            if (!currentTarget.HasThing || currentTarget.Thing.def.Fillage == FillCategory.Full)
-                hitFlags |= ProjectileHitFlags.NonTargetWorld;
-
-            if (currentTarget.Thing != null)
-            {
-                Logger.Message($"[MLRS] DIRECT → thing={currentTarget.Thing.LabelCap} flags={hitFlags}");
-                proj.Launch(shooter, drawPos, currentTarget, currentTarget, hitFlags, preventFriendlyFire, equip, coverDef);
-            }
-            else
-            {
-                Logger.Message($"[MLRS] DIRECT → cell={line.Dest} flags={hitFlags}");
-                proj.Launch(shooter, drawPos, line.Dest, currentTarget, hitFlags, preventFriendlyFire, equip, coverDef);
-            }
-
-            Logger.Message($"[MLRS] Fired {projDef.defName} at {currentTarget.Cell}");
-            return true;
-        }
-
-        private IntVec3 GetForcedMissTarget(float r)
-        {
-            if (verbProps.forcedMissEvenDispersal)
-            {
-                if (evenDispersal.Count == 0)
-                {
-                    evenDispersal.AddRange(GenerateEvenDispersal(currentTarget.Cell, r, burstShotsLeft));
-                    evenDispersal.SortByDescending(p => p.DistanceToSquared(Caster.Position));
-                }
-                if (evenDispersal.Count > 0) return evenDispersal.Pop();
-            }
-            int n = GenRadial.NumCellsInRadius(r);
-            return currentTarget.Cell + GenRadial.RadialPattern[Rand.Range(0, n)];
-        }
-
-        private static IEnumerable<IntVec3> GenerateEvenDispersal(IntVec3 root, float radius, int count)
-        {
-            float rot = Rand.Range(0f, 360f);
-            float phi = (1f + Mathf.Sqrt(5f)) / 2f;
-            for (int i = 0; i < count; i++)
-            {
-                float a = Mathf.PI * 2f * i / phi;
-                float b = Mathf.Acos(1f - 2f * ((i + 0.5f) / (float)count));
-                int x = (int)(Mathf.Cos(a) * Mathf.Sin(b) * radius);
-                int z = (int)(Mathf.Cos(b) * radius);
-                yield return root + new Vector3(x, 0f, z).RotatedBy(rot).ToIntVec3();
-            }
-        }
-
-        public override void Reset()
-        {
-            base.Reset();
-            evenDispersal.Clear();
-        }
-    }
+		public override void Reset()
+		{
+			base.Reset();
+			forcedMissTargetEvenDispersalCache.Clear();
+		}
+	}
 }
+
